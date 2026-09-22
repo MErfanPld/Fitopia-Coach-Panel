@@ -1,0 +1,11 @@
+services:
+  fitopia-coach:
+    build:
+      context: .
+      args:
+        VITE_API_ROOT: ${VITE_API_ROOT:-https://fitopiaapi.pythonanywhere.com/api}
+    image: fitopia-coach:latest
+    container_name: fitopia-coach
+    ports:
+      - "${HOST_PORT:-8081}:80"
+    restart: unless-stopped
