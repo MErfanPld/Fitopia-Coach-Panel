@@ -42,10 +42,10 @@ export function DashboardPage() {
   });
 
   const metrics = [
-    { label: "شاگردان", value: data?.total_students ?? "—", sub: `${data?.active_students ?? "—"} فعال`, to: "/app/students" },
-    { label: "تمرین", value: data?.workouts ?? "—", sub: "این ماه", to: "/app/workouts" },
-    { label: "رکورد", value: data?.prs ?? "—", sub: "PR", to: "/app/prs" },
-    { label: "پست", value: data?.posts ?? "—", sub: "فید", to: "/app/feed" },
+    { label: "شاگردان", value: data?.total_students ?? "—", to: "/app/students" },
+    { label: "تمرین", value: data?.workouts ?? "—", to: "/app/workouts" },
+    { label: "رکورد", value: data?.prs ?? "—", to: "/app/prs" },
+    { label: "پست", value: data?.posts ?? "—", to: "/app/feed" },
   ];
 
   const actions = [
@@ -59,7 +59,6 @@ export function DashboardPage() {
 
   return (
     <div className="mx-auto w-full max-w-lg px-5 pt-2 md:max-w-2xl md:pt-8">
-      {/* Greeting — LiftAI style large type */}
       <header className="mb-8 pt-2">
         <p className="text-[13px] font-medium text-white/40">{today}</p>
         <h1 className="mt-1 text-[28px] font-bold leading-tight tracking-tight text-white md:text-[32px]">
@@ -76,31 +75,29 @@ export function DashboardPage() {
 
       {!loading && !error && gymId ? (
         <>
-          {/* Primary CTA */}
+          {/* Primary CTA — orange */}
           <button
             type="button"
             onClick={() => navigate("/app/workouts")}
-            className="mb-6 flex w-full items-center justify-between rounded-2xl bg-white px-5 py-4 text-black transition active:scale-[0.98]"
+            className="mb-6 flex w-full items-center justify-between rounded-2xl bg-primary px-5 py-4 text-black transition active:scale-[0.98]"
           >
             <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-black text-white">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-black/20 text-black">
                 <Plus size={20} strokeWidth={2.5} />
               </span>
               <div className="text-right">
                 <p className="text-[15px] font-bold">ثبت تمرین جدید</p>
-                <p className="text-[12px] text-black/50">جلسه امروز را لاگ کن</p>
+                <p className="text-[12px] text-black/55">جلسه امروز را لاگ کن</p>
               </div>
             </div>
-            <ChevronLeft size={18} className="text-black/30" />
+            <ChevronLeft size={18} className="text-black/35" />
           </button>
 
-          {/* Metrics row */}
+          {/* Metrics */}
           <section className="mb-8">
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-[13px] font-semibold uppercase tracking-wider text-white/35">
-                این ماه
-              </h2>
-            </div>
+            <h2 className="mb-3 text-[13px] font-semibold uppercase tracking-wider text-white/35">
+              این ماه
+            </h2>
             <div className="grid grid-cols-4 gap-2">
               {metrics.map((m) => (
                 <button
@@ -116,7 +113,7 @@ export function DashboardPage() {
             </div>
           </section>
 
-          {/* Quick links list */}
+          {/* Shortcuts */}
           <section>
             <h2 className="mb-3 text-[13px] font-semibold uppercase tracking-wider text-white/35">
               میانبرها
@@ -131,7 +128,7 @@ export function DashboardPage() {
                     i < actions.length - 1 ? "border-b border-white/[0.06]" : ""
                   }`}
                 >
-                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/[0.06] text-white">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/15 text-primary">
                     <Icon size={17} strokeWidth={1.75} />
                   </span>
                   <span className="flex-1 text-[15px] font-medium text-white">{label}</span>
