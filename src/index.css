@@ -48,7 +48,10 @@ body {
   background: #141414;
   color: #fff; padding: 0 14px; font-size: 15px; outline: none; font-family: inherit;
 }
-.field:focus { border-color: rgba(255,255,255,0.25); }
+.field:focus {
+  border-color: rgba(255,106,0,0.55);
+  box-shadow: 0 0 0 3px rgba(255,106,0,0.12);
+}
 .field::placeholder { color: rgba(255,255,255,0.3); }
 textarea.field { padding: 12px 14px; min-height: 96px; resize: vertical; }
 select.field {
@@ -59,13 +62,16 @@ select.field {
 
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  min-height: 48px; border-radius: 14px; font-weight: 600; font-size: 15px;
+  min-height: 48px; border-radius: 14px; font-weight: 700; font-size: 15px;
   border: none; cursor: pointer; font-family: inherit;
   transition: transform .12s ease, opacity .12s ease;
 }
 .btn:active { transform: scale(0.98); }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.btn-primary { background: #fff; color: #000; }
+.btn-primary {
+  background: linear-gradient(135deg, #FF6A00, #ff8a33);
+  color: #0b0b0d;
+}
 .btn-ghost {
   background: #141414; color: rgba(255,255,255,0.9);
   border: 1px solid rgba(255,255,255,0.08);
@@ -86,7 +92,10 @@ select.field {
   border: none; background: #141414;
   color: rgba(255,255,255,0.6); white-space: nowrap;
 }
-.chip-active { background: #fff; color: #000; }
+.chip-active {
+  background: rgba(255,106,0,0.15);
+  color: #FF6A00;
+}
 
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
