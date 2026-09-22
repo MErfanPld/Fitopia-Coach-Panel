@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Pencil } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 import { coachApi } from "../api/client";
 import type { TrainingPlan, Student } from "../types";
 import { PageShell, LoadingBlock, ErrorBanner, EmptyState, Modal, listify } from "../components/ui";
@@ -14,6 +15,7 @@ import {
 
 export function TrainingPage() {
   const { gymId } = useAuth();
+  const toast = useToast();
   const tj = todayJalali();
   const [items, setItems] = useState<TrainingPlan[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
@@ -22,10 +24,10 @@ export function TrainingPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [modal, setModal] = useState(false);
+  const [editing, setEditing] = useState<TrainingPlan | null>(null);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({ student: "", title: "", content: "" });
 
-  // API expects Gregorian year/month
   const g = toGregorian(jy, jm, 15);
 
   const load = async () => {
@@ -46,35 +48,62 @@ export function TrainingPage() {
   };
   useEffect(() => { void load(); }, [gymId, jy, jm]);
 
-  const onCreate = async (e: React.FormEvent) => {
+  const openCreate = () => {
+    setEditing(null);
+    setForm({ student: "", title: "", content: "" });
+    setModal(true);
+  };
+
+  const openEdit = (p: TrainingPlan) => {
+    setEditing(p);
+    setForm({
+      student: String(p.student),
+      title: p.title || "",
+      content: p.content || "",
+    });
+    setModal(true);
+  };
+
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!gymId || !form.student) return;
     setSaving(true);
     try {
-      await coachApi.createTraining(gymId, {
+      const body = {
         student: Number(form.student),
         year: g.gy,
         month: g.gm,
         title: form.title || undefined,
         content: form.content || undefined,
-      });
+      };
+      if (editing) {
+        await coachApi.updateTraining(gymId, editing.id, body);
+        toast.success("برنامه ویرایش شد");
+      } else {
+        await coachApi.createTraining(gymId, body);
+        toast.success("برنامه ثبت شد");
+      }
       setModal(false);
+      setEditing(null);
       setForm({ student: "", title: "", content: "" });
       await load();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "خطا");
+      toast.error(err instanceof Error ? err.message : "خطا");
     } finally {
       setSaving(false);
     }
   };
 
   const onDelete = async (id: number) => {
-    if (!gymId || !confirm("حذف این برنامه؟")) return;
+    if (!gymId) return;
+    const ok = await toast.confirm("حذف این برنامه؟");
+    if (!ok) return;
     try {
       await coachApi.deleteTraining(gymId, id);
+      toast.success("حذف شد");
       await load();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "خطا");
+      toast.error(err instanceof Error ? err.message : "خطا");
     }
   };
 
@@ -83,7 +112,7 @@ export function TrainingPage() {
       title="برنامه تمرینی"
       subtitle={toFaDigits(`${PERSIAN_MONTHS[jm - 1]} ${jy}`)}
       actions={
-        <button type="button" className="btn btn-primary btn-sm" onClick={() => setModal(true)}>
+        <button type="button" className="btn btn-primary btn-sm" onClick={openCreate}>
           <Plus size={14} /> جدید
         </button>
       }
@@ -107,7 +136,7 @@ export function TrainingPage() {
       ) : null}
       <div className="space-y-2">
         {items.map((p) => (
-          <div key={p.id} className="card flex items-start gap-3">
+          <div key={p.id} className="card flex items-start gap-2.5">
             <div className="min-w-0 flex-1">
               <p className="text-[13px] font-bold text-white">{p.title || "برنامه تمرینی"}</p>
               <p className="text-[11px] text-white/45">
@@ -116,14 +145,17 @@ export function TrainingPage() {
               </p>
               {p.content ? <p className="mt-1 line-clamp-2 text-[11px] text-white/40">{p.content}</p> : null}
             </div>
+            <button type="button" className="rounded-lg p-1.5 text-white/45" onClick={() => openEdit(p)}>
+              <Pencil size={14} />
+            </button>
             <button type="button" className="rounded-lg p-1.5 text-red-300/70" onClick={() => onDelete(p.id)}>
               <Trash2 size={14} />
             </button>
           </div>
         ))}
       </div>
-      <Modal open={modal} onClose={() => setModal(false)} title="برنامه تمرینی جدید">
-        <form onSubmit={onCreate} className="space-y-2.5">
+      <Modal open={modal} onClose={() => { setModal(false); setEditing(null); }} title={editing ? "ویرایش برنامه" : "برنامه تمرینی جدید"}>
+        <form onSubmit={onSubmit} className="space-y-2.5">
           <div>
             <label className="mb-1 block text-[11px] text-white/50">شاگرد *</label>
             <select className="field" required value={form.student} onChange={(e) => setForm((f) => ({ ...f, student: e.target.value }))}>
@@ -145,7 +177,7 @@ export function TrainingPage() {
             <textarea className="field" value={form.content} onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))} rows={4} />
           </div>
           <button type="submit" disabled={saving} className="btn btn-primary w-full">
-            {saving ? "…" : "ثبت برنامه"}
+            {saving ? "…" : editing ? "ذخیره تغییرات" : "ثبت برنامه"}
           </button>
         </form>
       </Modal>
