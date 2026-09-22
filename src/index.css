@@ -3,10 +3,10 @@
 @theme {
   --color-primary: #FF6A00;
   --color-primary-dim: #e05e00;
-  --color-surface: #141414;
-  --color-surface-2: #1a1a1a;
-  --color-border: rgba(255, 255, 255, 0.08);
-  --font-sans: "Vazirmatn", system-ui, -apple-system, sans-serif;
+  --color-surface: rgba(255, 255, 255, 0.06);
+  --color-surface-2: rgba(255, 255, 255, 0.1);
+  --color-border: rgba(255, 255, 255, 0.12);
+  --font-sans: "Vazirmatn", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 @font-face {
@@ -34,70 +34,123 @@
 html, body, #root { min-height: 100dvh; }
 body {
   font-family: var(--font-sans);
-  background: #000;
-  color: #f5f5f5;
+  background: #050507;
+  color: #f2f2f7;
   margin: 0;
+  font-size: 14px;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: none;
   -webkit-font-smoothing: antialiased;
 }
 
+/* Apple-style ambient background */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% -10%, rgba(255, 106, 0, 0.18), transparent 50%),
+    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(255, 140, 60, 0.08), transparent 45%),
+    radial-gradient(ellipse 50% 40% at 50% 100%, rgba(255, 106, 0, 0.06), transparent 50%),
+    #050507;
+  pointer-events: none;
+}
+
+/* ——— Glass surfaces ——— */
+.glass {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.06) inset,
+    0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
+.glass-strong {
+  background: rgba(28, 28, 32, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(40px) saturate(1.6);
+  -webkit-backdrop-filter: blur(40px) saturate(1.6);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.08) inset,
+    0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+.glass-thin {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
 .field {
-  width: 100%; min-height: 48px; border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.08);
-  background: #141414;
-  color: #fff; padding: 0 14px; font-size: 15px; outline: none; font-family: inherit;
+  width: 100%; min-height: 42px; border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  color: #fff; padding: 0 12px; font-size: 13px; outline: none; font-family: inherit;
 }
 .field:focus {
-  border-color: rgba(255,106,0,0.55);
-  box-shadow: 0 0 0 3px rgba(255,106,0,0.12);
+  border-color: rgba(255, 106, 0, 0.5);
+  box-shadow: 0 0 0 3px rgba(255, 106, 0, 0.12);
 }
-.field::placeholder { color: rgba(255,255,255,0.3); }
-textarea.field { padding: 12px 14px; min-height: 96px; resize: vertical; }
+.field::placeholder { color: rgba(255, 255, 255, 0.28); }
+textarea.field { padding: 10px 12px; min-height: 80px; resize: vertical; }
 select.field {
-  appearance: none; padding-left: 36px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23666' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5'/%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: left 12px center;
+  appearance: none; padding-left: 32px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='%23666' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: left 10px center;
 }
 
 .btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  min-height: 48px; border-radius: 14px; font-weight: 700; font-size: 15px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 42px; border-radius: 12px; font-weight: 600; font-size: 13px;
   border: none; cursor: pointer; font-family: inherit;
   transition: transform .12s ease, opacity .12s ease;
 }
-.btn:active { transform: scale(0.98); }
+.btn:active { transform: scale(0.97); }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .btn-primary {
   background: linear-gradient(135deg, #FF6A00, #ff8a33);
   color: #0b0b0d;
+  box-shadow: 0 4px 16px rgba(255, 106, 0, 0.28);
 }
 .btn-ghost {
-  background: #141414; color: rgba(255,255,255,0.9);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
 }
-.btn-danger { background: rgba(239,68,68,0.12); color: #fca5a5; border: none; }
-.btn-sm { min-height: 36px; padding: 0 14px; font-size: 13px; border-radius: 10px; }
+.btn-danger { background: rgba(239, 68, 68, 0.12); color: #fca5a5; border: none; }
+.btn-sm { min-height: 32px; padding: 0 12px; font-size: 12px; border-radius: 10px; }
 
 .card {
   border-radius: 16px;
-  border: none;
-  background: #141414;
-  padding: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(24px) saturate(1.3);
+  -webkit-backdrop-filter: blur(24px) saturate(1.3);
+  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.05) inset;
+  padding: 14px;
 }
 
 .chip {
-  display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px;
-  border-radius: 999px; font-size: 13px; font-weight: 500;
-  border: none; background: #141414;
-  color: rgba(255,255,255,0.6); white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px;
+  border-radius: 999px; font-size: 12px; font-weight: 500;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  color: rgba(255, 255, 255, 0.6); white-space: nowrap;
 }
 .chip-active {
-  background: rgba(255,106,0,0.15);
+  background: rgba(255, 106, 0, 0.18);
+  border-color: rgba(255, 106, 0, 0.35);
   color: #FF6A00;
 }
 
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-.safe-bottom { padding-bottom: max(0.5rem, env(safe-area-inset-bottom)); }
-.safe-top { padding-top: max(0.5rem, env(safe-area-inset-top)); }
+.safe-bottom { padding-bottom: max(0.4rem, env(safe-area-inset-bottom)); }
+.safe-top { padding-top: max(0.4rem, env(safe-area-inset-top)); }
