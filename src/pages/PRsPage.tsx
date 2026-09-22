@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 import { coachApi } from "../api/client";
 import type { PersonalRecord, Student, Exercise } from "../types";
 import { PageShell, LoadingBlock, ErrorBanner, EmptyState, Modal, listify } from "../components/ui";
@@ -9,6 +10,7 @@ import { formatFaDate, todayIso } from "../lib/dates";
 
 export function PRsPage() {
   const { gymId } = useAuth();
+  const toast = useToast();
   const [items, setItems] = useState<PersonalRecord[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
   const [exercises, setExercises] = useState<Exercise[]>([]);
@@ -56,23 +58,27 @@ export function PRsPage() {
         unit: form.unit,
         achieved_at: form.achieved_at,
       });
+      toast.success("رکورد ثبت شد");
       setModal(false);
       setForm({ student: "", exercise: "", value: "", unit: "kg", achieved_at: todayIso() });
       await load();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "خطا");
+      toast.error(err instanceof Error ? err.message : "خطا");
     } finally {
       setSaving(false);
     }
   };
 
   const onDelete = async (id: number) => {
-    if (!gymId || !confirm("حذف این رکورد؟")) return;
+    if (!gymId) return;
+    const ok = await toast.confirm("حذف این رکورد؟");
+    if (!ok) return;
     try {
       await coachApi.deletePr(gymId, id);
+      toast.success("حذف شد");
       await load();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "خطا");
+      toast.error(err instanceof Error ? err.message : "خطا");
     }
   };
 
