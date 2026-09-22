@@ -1,9 +1,9 @@
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Users, Dumbbell, ClipboardList, Trophy, TrendingUp,
   CalendarDays, Utensils, Rss, Medal, UserCircle, LogOut, Menu, X,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 
 const NAV = [
@@ -20,6 +20,7 @@ const NAV = [
   { to: "/app/profile", label: "پروفایل", Icon: UserCircle },
 ];
 
+/** ناو پایین موبایل — ۵ آیتم اصلی */
 const BOTTOM = [
   { to: "/app", end: true, label: "خانه", Icon: LayoutDashboard },
   { to: "/app/students", label: "شاگردان", Icon: Users },
@@ -28,96 +29,195 @@ const BOTTOM = [
   { to: "/app/profile", label: "من", Icon: UserCircle },
 ];
 
+function linkActive(pathname: string, to: string, end?: boolean) {
+  if (end) return pathname === to || pathname === `${to}/`;
+  return pathname === to || pathname.startsWith(`${to}/`);
+}
+
 export function AppShell() {
   const { profile, logout } = useAuth();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const [drawer, setDrawer] = useState(false);
-  const onLogout = () => { logout(); navigate("/welcome", { replace: true }); };
+
+  // بستن دراور با تغییر مسیر
+  useEffect(() => { setDrawer(false); }, [pathname]);
+
+  // قفل اسکرول بدن وقتی دراور باز است
+  useEffect(() => {
+    document.body.style.overflow = drawer ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [drawer]);
+
+  const onLogout = () => {
+    logout();
+    navigate("/welcome", { replace: true });
+  };
 
   return (
     <div className="min-h-dvh bg-[#07070A] text-white">
-      <header className="safe-top sticky top-0 z-30 flex items-center justify-between border-b border-white/5 bg-[#0c0c10]/95 px-4 py-3 backdrop-blur md:hidden">
-        <button type="button" onClick={() => setDrawer(true)} className="rounded-xl p-2 text-white/70"><Menu size={22} /></button>
+      {/* هدر موبایل */}
+      <header className="safe-top sticky top-0 z-30 flex items-center justify-between border-b border-white/[0.06] bg-[#0c0c10]/90 px-3 py-2.5 backdrop-blur-xl md:hidden">
+        <button
+          type="button"
+          onClick={() => setDrawer(true)}
+          className="flex h-10 w-10 items-center justify-center rounded-xl text-white/70 active:bg-white/5"
+          aria-label="منو"
+        >
+          <Menu size={22} />
+        </button>
         <div className="text-center">
-          <p className="text-sm font-black text-primary">Fitopia Coach</p>
-          <p className="text-[11px] text-white/40">{profile?.gym_name || "پنل مربی"}</p>
+          <p className="text-sm font-black tracking-tight text-primary">Fitopia Coach</p>
+          <p className="text-[10px] text-white/40">{profile?.gym_name || "پنل مربی"}</p>
         </div>
-        <div className="w-10" />
+        <button
+          type="button"
+          onClick={() => navigate("/app/profile")}
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15 text-sm font-bold text-primary"
+          aria-label="پروفایل"
+        >
+          {(profile?.full_name?.[0] || "م").toUpperCase()}
+        </button>
       </header>
 
-      <aside className="fixed inset-y-0 start-0 z-40 hidden w-60 flex-col border-e border-white/5 bg-[#0c0c10] md:flex">
-        <div className="border-b border-white/5 px-5 py-5">
+      {/* سایدبار دسکتاپ */}
+      <aside className="fixed inset-y-0 start-0 z-40 hidden w-64 flex-col border-e border-white/[0.06] bg-[#0c0c10] md:flex">
+        <div className="border-b border-white/[0.06] px-5 py-6">
           <p className="text-lg font-black text-primary">Fitopia Coach</p>
-          <p className="mt-1 truncate text-xs text-white/45">{profile?.full_name}</p>
-          <p className="truncate text-[11px] text-white/30">{profile?.gym_name}</p>
+          <p className="mt-1.5 truncate text-sm font-semibold text-white/80">{profile?.full_name || "مربی"}</p>
+          <p className="truncate text-xs text-white/35">{profile?.gym_name || "—"}</p>
         </div>
         <nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
-          {NAV.map(({ to, end, label, Icon }) => (
-            <NavLink key={to} to={to} end={end}
-              className={({ isActive }) =>
-                `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${
-                  isActive ? "bg-primary/15 text-primary" : "text-white/60 hover:bg-white/5 hover:text-white"
+          {NAV.map(({ to, end, label, Icon }) => {
+            const active = linkActive(pathname, to, end);
+            return (
+              <NavLink
+                key={to}
+                to={to}
+                end={end}
+                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${
+                  active
+                    ? "bg-primary/15 text-primary"
+                    : "text-white/55 hover:bg-white/[0.04] hover:text-white"
                 }`}
-            >
-              <Icon size={18} strokeWidth={1.75} />{label}
-            </NavLink>
-          ))}
+              >
+                <Icon size={18} strokeWidth={active ? 2.2 : 1.75} />
+                {label}
+              </NavLink>
+            );
+          })}
         </nav>
-        <button type="button" onClick={onLogout}
-          className="m-3 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-red-300/80 hover:bg-red-500/10">
-          <LogOut size={18} />خروج
+        <button
+          type="button"
+          onClick={onLogout}
+          className="m-3 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-red-300/80 transition hover:bg-red-500/10"
+        >
+          <LogOut size={18} />
+          خروج
         </button>
       </aside>
 
+      {/* دراور موبایل */}
       {drawer ? (
         <div className="fixed inset-0 z-50 md:hidden">
-          <button type="button" className="absolute inset-0 bg-black/60" onClick={() => setDrawer(false)} />
-          <div className="absolute inset-y-0 start-0 flex w-[min(80vw,280px)] flex-col bg-[#0c0c10] shadow-2xl">
-            <div className="flex items-center justify-between border-b border-white/5 px-4 py-4">
-              <p className="font-black text-primary">منو</p>
-              <button type="button" onClick={() => setDrawer(false)} className="p-2 text-white/50"><X size={20} /></button>
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/65 backdrop-blur-sm"
+            onClick={() => setDrawer(false)}
+            aria-label="بستن"
+          />
+          <div className="absolute inset-y-0 start-0 flex w-[min(82vw,300px)] flex-col bg-[#0c0c10] shadow-2xl animate-in slide-in-from-right">
+            <div className="safe-top flex items-center justify-between border-b border-white/[0.06] px-4 py-4">
+              <div>
+                <p className="font-black text-primary">منو</p>
+                <p className="text-xs text-white/40">{profile?.full_name}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDrawer(false)}
+                className="flex h-9 w-9 items-center justify-center rounded-xl text-white/50 active:bg-white/5"
+              >
+                <X size={20} />
+              </button>
             </div>
             <nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
-              {NAV.map(({ to, end, label, Icon }) => (
-                <NavLink key={to} to={to} end={end} onClick={() => setDrawer(false)}
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold ${
-                      isActive ? "bg-primary/15 text-primary" : "text-white/60"
+              {NAV.map(({ to, end, label, Icon }) => {
+                const active = linkActive(pathname, to, end);
+                return (
+                  <NavLink
+                    key={to}
+                    to={to}
+                    end={end}
+                    onClick={() => setDrawer(false)}
+                    className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold ${
+                      active ? "bg-primary/15 text-primary" : "text-white/60"
                     }`}
-                >
-                  <Icon size={18} />{label}
-                </NavLink>
-              ))}
+                  >
+                    <Icon size={18} strokeWidth={active ? 2.2 : 1.75} />
+                    {label}
+                  </NavLink>
+                );
+              })}
             </nav>
-            <button type="button" onClick={onLogout}
-              className="m-3 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-red-300/80">
-              <LogOut size={18} />خروج
+            <button
+              type="button"
+              onClick={onLogout}
+              className="m-3 flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-red-300/80"
+            >
+              <LogOut size={18} />
+              خروج از حساب
             </button>
           </div>
         </div>
       ) : null}
 
-      <main className="md:ps-60"><Outlet /></main>
+      {/* محتوای اصلی */}
+      <main className="md:ps-64">
+        <div className="min-h-dvh pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-6">
+          <Outlet />
+        </div>
+      </main>
 
-      <nav className="safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-white/5 bg-[#0c0c10]/95 backdrop-blur md:hidden">
-        <div className="mx-auto flex max-w-lg items-stretch justify-around px-1 py-1.5">
-          {BOTTOM.map(({ to, end, label, Icon }) => (
-            <NavLink key={to} to={to} end={end}
-              className={({ isActive }) =>
-                `flex flex-1 flex-col items-center gap-0.5 rounded-xl py-1.5 text-[10px] font-semibold ${
-                  isActive ? "text-primary" : "text-white/40"
-                }`}
-            >
-              {({ isActive }) => (
-                <>
-                  <span className={`flex h-8 w-8 items-center justify-center rounded-full ${isActive ? "bg-primary text-[#0b0b0d]" : ""}`}>
-                    <Icon size={isActive ? 18 : 20} strokeWidth={isActive ? 2.2 : 1.6} />
-                  </span>
+      {/* ناو پایین موبایل — pill شناور */}
+      <nav
+        className="safe-bottom fixed inset-x-0 bottom-0 z-40 px-3 pb-2 md:hidden"
+        aria-label="ناوبری اصلی"
+      >
+        <div className="mx-auto flex max-w-[420px] items-end justify-between gap-0.5 rounded-2xl border border-white/[0.08] bg-[#121216]/95 px-1.5 py-1.5 shadow-[0_-8px_32px_rgba(0,0,0,0.45)] backdrop-blur-xl">
+          {BOTTOM.map(({ to, end, label, Icon }) => {
+            const active = linkActive(pathname, to, end);
+            const isHome = to === "/app" && end;
+            return (
+              <NavLink
+                key={to}
+                to={to}
+                end={end}
+                className="relative flex flex-1 flex-col items-center justify-end gap-0.5 rounded-xl py-1"
+              >
+                <span
+                  className={`flex items-center justify-center transition-all duration-200 ${
+                    isHome && active
+                      ? "-translate-y-3 h-12 w-12 rounded-full bg-primary text-[#0b0b0d] shadow-[0_6px_20px_rgba(255,106,0,0.45)]"
+                      : active
+                        ? "h-9 w-9 rounded-full bg-primary/20 text-primary"
+                        : "h-9 w-9 text-white/40"
+                  }`}
+                >
+                  <Icon
+                    size={isHome && active ? 22 : 20}
+                    strokeWidth={active ? 2.25 : 1.6}
+                  />
+                </span>
+                <span
+                  className={`text-[10px] font-bold leading-none ${
+                    active ? "text-primary" : "text-white/35"
+                  }`}
+                >
                   {label}
-                </>
-              )}
-            </NavLink>
-          ))}
+                </span>
+              </NavLink>
+            );
+          })}
         </div>
       </nav>
     </div>
