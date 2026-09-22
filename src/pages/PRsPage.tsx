@@ -4,7 +4,8 @@ import { useAuth } from "../context/AuthContext";
 import { coachApi } from "../api/client";
 import type { PersonalRecord, Student, Exercise } from "../types";
 import { PageShell, LoadingBlock, ErrorBanner, EmptyState, Modal, listify } from "../components/ui";
-import { formatFaDate } from "../lib/dates";
+import { PersianDatePicker } from "../components/PersianDatePicker";
+import { formatFaDate, todayIso } from "../lib/dates";
 
 export function PRsPage() {
   const { gymId } = useAuth();
@@ -20,7 +21,7 @@ export function PRsPage() {
     exercise: "",
     value: "",
     unit: "kg",
-    achieved_at: new Date().toISOString().slice(0, 10),
+    achieved_at: todayIso(),
   });
 
   const load = async () => {
@@ -56,6 +57,7 @@ export function PRsPage() {
         achieved_at: form.achieved_at,
       });
       setModal(false);
+      setForm({ student: "", exercise: "", value: "", unit: "kg", achieved_at: todayIso() });
       await load();
     } catch (err) {
       alert(err instanceof Error ? err.message : "خطا");
@@ -140,17 +142,12 @@ export function PRsPage() {
               </select>
             </div>
           </div>
-          <div>
-            <label className="mb-1 block text-[11px] text-white/50">تاریخ</label>
-            <input
-              className="field"
-              type="date"
-              dir="ltr"
-              value={form.achieved_at}
-              onChange={(e) => setForm((f) => ({ ...f, achieved_at: e.target.value }))}
-            />
-            <p className="mt-1 text-[10px] text-white/30">نمایش: {formatFaDate(form.achieved_at)}</p>
-          </div>
+          <PersianDatePicker
+            label="تاریخ"
+            required
+            value={form.achieved_at}
+            onChange={(iso) => setForm((f) => ({ ...f, achieved_at: iso }))}
+          />
           <button type="submit" disabled={saving} className="btn btn-primary w-full">
             {saving ? "…" : "ثبت رکورد"}
           </button>
