@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Users, ClipboardList, Trophy, Rss, TrendingUp,
-  Dumbbell, CalendarDays, ChevronLeft, Plus,
+  Dumbbell, CalendarDays, ChevronLeft, Plus, Activity,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { coachApi } from "../api/client";
@@ -41,31 +41,59 @@ export function DashboardPage() {
     month: "long",
   });
 
-  const metrics = [
-    { label: "شاگردان", value: data?.total_students ?? "—", to: "/app/students" },
-    { label: "تمرین", value: data?.workouts ?? "—", to: "/app/workouts" },
-    { label: "رکورد", value: data?.prs ?? "—", to: "/app/prs" },
-    { label: "پست", value: data?.posts ?? "—", to: "/app/feed" },
+  const cards = [
+    {
+      label: "کل شاگردان",
+      value: data?.total_students ?? "—",
+      hint: data?.active_students != null ? `${data.active_students} فعال` : undefined,
+      Icon: Users,
+      to: "/app/students",
+    },
+    {
+      label: "تمرین‌ها",
+      value: data?.workouts ?? "—",
+      hint: "این ماه",
+      Icon: ClipboardList,
+      to: "/app/workouts",
+    },
+    {
+      label: "رکوردها",
+      value: data?.prs ?? "—",
+      hint: "PR ثبت‌شده",
+      Icon: Trophy,
+      to: "/app/prs",
+    },
+    {
+      label: "پست‌های فید",
+      value: data?.posts ?? "—",
+      hint: "این ماه",
+      Icon: Rss,
+      to: "/app/feed",
+    },
   ];
 
-  const actions = [
+  const shortcuts = [
     { label: "ثبت تمرین", Icon: ClipboardList, to: "/app/workouts" },
-    { label: "شاگرد جدید", Icon: Users, to: "/app/students" },
-    { label: "حرکت", Icon: Dumbbell, to: "/app/exercises" },
+    { label: "شاگردان", Icon: Users, to: "/app/students" },
+    { label: "حرکات", Icon: Dumbbell, to: "/app/exercises" },
     { label: "برنامه", Icon: CalendarDays, to: "/app/training" },
     { label: "پیشرفت", Icon: TrendingUp, to: "/app/progress" },
     { label: "فید", Icon: Rss, to: "/app/feed" },
   ];
 
   return (
-    <div className="mx-auto w-full max-w-lg px-5 pt-2 md:max-w-2xl md:pt-8">
-      <header className="mb-8 pt-2">
+    <div className="mx-auto w-full max-w-lg space-y-6 px-4 pt-3 md:max-w-2xl md:px-6 md:pt-8">
+      {/* Greeting */}
+      <header>
         <p className="text-[13px] font-medium text-white/40">{today}</p>
-        <h1 className="mt-1 text-[28px] font-bold leading-tight tracking-tight text-white md:text-[32px]">
+        <h1 className="mt-1 text-[26px] font-bold leading-tight tracking-tight text-white md:text-[30px]">
           سلام، {firstName}
         </h1>
         {profile?.gym_name ? (
-          <p className="mt-1 text-[14px] text-white/45">{profile.gym_name}</p>
+          <p className="mt-1 flex items-center gap-1.5 text-[13px] text-white/45">
+            <Activity size={13} className="text-primary" />
+            {profile.gym_name}
+          </p>
         ) : null}
       </header>
 
@@ -75,64 +103,70 @@ export function DashboardPage() {
 
       {!loading && !error && gymId ? (
         <>
-          {/* Primary CTA — orange */}
+          {/* CTA */}
           <button
             type="button"
             onClick={() => navigate("/app/workouts")}
-            className="mb-6 flex w-full items-center justify-between rounded-2xl bg-primary px-5 py-4 text-black transition active:scale-[0.98]"
+            className="flex w-full items-center gap-3.5 rounded-2xl bg-gradient-to-l from-primary to-[#ff8a33] px-4 py-4 text-black shadow-[0_8px_28px_rgba(255,106,0,0.28)] transition active:scale-[0.98]"
           >
-            <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-black/20 text-black">
-                <Plus size={20} strokeWidth={2.5} />
-              </span>
-              <div className="text-right">
-                <p className="text-[15px] font-bold">ثبت تمرین جدید</p>
-                <p className="text-[12px] text-black/55">جلسه امروز را لاگ کن</p>
-              </div>
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-black/15">
+              <Plus size={22} strokeWidth={2.5} />
+            </span>
+            <div className="min-w-0 flex-1 text-right">
+              <p className="text-[15px] font-bold">ثبت تمرین جدید</p>
+              <p className="text-[12px] text-black/55">جلسه امروز را لاگ کن</p>
             </div>
-            <ChevronLeft size={18} className="text-black/35" />
+            <ChevronLeft size={18} className="shrink-0 text-black/40" />
           </button>
 
-          {/* Metrics */}
-          <section className="mb-8">
-            <h2 className="mb-3 text-[13px] font-semibold uppercase tracking-wider text-white/35">
-              این ماه
+          {/* Metric cards — 2×2 */}
+          <section>
+            <h2 className="mb-3 text-[12px] font-semibold tracking-wide text-white/35">
+              آمار ماه جاری
             </h2>
-            <div className="grid grid-cols-4 gap-2">
-              {metrics.map((m) => (
+            <div className="grid grid-cols-2 gap-3">
+              {cards.map(({ label, value, hint, Icon, to }) => (
                 <button
-                  key={m.label}
+                  key={label}
                   type="button"
-                  onClick={() => navigate(m.to)}
-                  className="rounded-2xl bg-[#141414] px-2 py-3 text-center transition active:bg-[#1a1a1a]"
+                  onClick={() => navigate(to)}
+                  className="group relative overflow-hidden rounded-2xl border border-white/[0.06] bg-[#141414] p-4 text-right transition active:scale-[0.98] active:border-primary/30"
                 >
-                  <p className="text-[20px] font-bold tabular-nums text-white">{m.value}</p>
-                  <p className="mt-0.5 text-[11px] font-medium text-white/40">{m.label}</p>
+                  <div className="mb-3 flex items-center justify-between">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/12 text-primary">
+                      <Icon size={18} strokeWidth={1.9} />
+                    </span>
+                    <ChevronLeft size={14} className="text-white/15 transition group-active:text-primary/50" />
+                  </div>
+                  <p className="text-[26px] font-bold tabular-nums leading-none text-white">
+                    {value}
+                  </p>
+                  <p className="mt-1.5 text-[12px] font-medium text-white/50">{label}</p>
+                  {hint ? (
+                    <p className="mt-0.5 text-[11px] text-white/30">{hint}</p>
+                  ) : null}
                 </button>
               ))}
             </div>
           </section>
 
-          {/* Shortcuts */}
+          {/* Shortcuts grid */}
           <section>
-            <h2 className="mb-3 text-[13px] font-semibold uppercase tracking-wider text-white/35">
+            <h2 className="mb-3 text-[12px] font-semibold tracking-wide text-white/35">
               میانبرها
             </h2>
-            <div className="overflow-hidden rounded-2xl bg-[#141414]">
-              {actions.map(({ label, Icon, to }, i) => (
+            <div className="grid grid-cols-3 gap-2.5">
+              {shortcuts.map(({ label, Icon, to }) => (
                 <button
                   key={to + label}
                   type="button"
                   onClick={() => navigate(to)}
-                  className={`flex w-full items-center gap-3.5 px-4 py-3.5 text-right transition active:bg-white/[0.04] ${
-                    i < actions.length - 1 ? "border-b border-white/[0.06]" : ""
-                  }`}
+                  className="flex flex-col items-center gap-2 rounded-2xl border border-white/[0.06] bg-[#141414] px-2 py-3.5 transition active:scale-[0.96] active:border-primary/25"
                 >
-                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/15 text-primary">
-                    <Icon size={17} strokeWidth={1.75} />
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/12 text-primary">
+                    <Icon size={18} strokeWidth={1.85} />
                   </span>
-                  <span className="flex-1 text-[15px] font-medium text-white">{label}</span>
-                  <ChevronLeft size={16} className="text-white/20" />
+                  <span className="text-[11px] font-semibold text-white/65">{label}</span>
                 </button>
               ))}
             </div>
