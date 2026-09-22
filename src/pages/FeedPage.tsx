@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Heart, MessageCircle, Plus, Trash2 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 import { coachApi } from "../api/client";
 import type { FeedPost } from "../types";
 import { PageShell, LoadingBlock, ErrorBanner, EmptyState, Modal, listify } from "../components/ui";
@@ -8,6 +9,7 @@ import { formatFaDate } from "../lib/dates";
 
 export function FeedPage() {
   const { gymId } = useAuth();
+  const toast = useToast();
   const [items, setItems] = useState<FeedPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -37,11 +39,12 @@ export function FeedPage() {
       fd.append("caption", caption.trim());
       fd.append("text", caption.trim());
       await coachApi.createPost(gymId, fd);
+      toast.success("پست منتشر شد");
       setCaption("");
       setModal(false);
       await load();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "خطا");
+      toast.error(err instanceof Error ? err.message : "خطا");
     } finally {
       setSaving(false);
     }
@@ -53,17 +56,20 @@ export function FeedPage() {
       await coachApi.likePost(gymId, id);
       await load();
     } catch {
-      /* ignore */
+      toast.error("خطا در لایک");
     }
   };
 
   const onDelete = async (id: number) => {
-    if (!gymId || !confirm("حذف این پست؟")) return;
+    if (!gymId) return;
+    const ok = await toast.confirm("حذف این پست؟");
+    if (!ok) return;
     try {
       await coachApi.deletePost(gymId, id);
+      toast.success("حذف شد");
       await load();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "خطا");
+      toast.error(err instanceof Error ? err.message : "خطا");
     }
   };
 
