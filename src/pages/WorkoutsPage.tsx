@@ -4,7 +4,8 @@ import { useAuth } from "../context/AuthContext";
 import { coachApi } from "../api/client";
 import type { Workout, Student, Exercise } from "../types";
 import { PageShell, LoadingBlock, ErrorBanner, EmptyState, Modal, listify } from "../components/ui";
-import { formatFaDate } from "../lib/dates";
+import { PersianDatePicker } from "../components/PersianDatePicker";
+import { formatFaDate, todayIso } from "../lib/dates";
 
 export function WorkoutsPage() {
   const { gymId } = useAuth();
@@ -18,7 +19,7 @@ export function WorkoutsPage() {
   const [form, setForm] = useState({
     student: "",
     title: "",
-    performed_at: new Date().toISOString().slice(0, 10),
+    performed_at: todayIso(),
     exercise: "",
     reps: "10",
     weight_kg: "",
@@ -59,6 +60,7 @@ export function WorkoutsPage() {
         sets,
       });
       setModal(false);
+      setForm((f) => ({ ...f, student: "", title: "", performed_at: todayIso(), exercise: "", reps: "10", weight_kg: "" }));
       await load();
     } catch (err) {
       alert(err instanceof Error ? err.message : "خطا");
@@ -98,7 +100,7 @@ export function WorkoutsPage() {
             <div className="min-w-0 flex-1">
               <p className="text-[13px] font-bold text-white">{w.student_name || `شاگرد #${w.student}`}</p>
               <p className="text-[11px] text-white/45">
-                {formatFaDate((w as { date?: string }).performed_at || (w as { date?: string }).date)}
+                {formatFaDate(w.performed_at || (w as { date?: string }).date)}
                 {w.title ? ` · ${w.title}` : ""}
               </p>
               {w.sets && w.sets.length > 0 ? (
@@ -122,19 +124,12 @@ export function WorkoutsPage() {
               ))}
             </select>
           </div>
-          <div>
-            <label className="mb-1 block text-[11px] text-white/50">تاریخ</label>
-            <input
-              className="field"
-              type="date"
-              dir="ltr"
-              value={form.performed_at}
-              onChange={(e) => setForm((f) => ({ ...f, performed_at: e.target.value }))}
-            />
-            <p className="mt-1 text-[10px] text-white/30">
-              نمایش: {formatFaDate(form.performed_at)}
-            </p>
-          </div>
+          <PersianDatePicker
+            label="تاریخ"
+            required
+            value={form.performed_at}
+            onChange={(iso) => setForm((f) => ({ ...f, performed_at: iso }))}
+          />
           <div>
             <label className="mb-1 block text-[11px] text-white/50">عنوان</label>
             <input className="field" value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} />
