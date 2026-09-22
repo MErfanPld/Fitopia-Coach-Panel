@@ -51,35 +51,35 @@ export function AppShell() {
   };
 
   return (
-    <div className="min-h-dvh bg-black text-white">
-      {/* Header mobile */}
-      <header className="safe-top sticky top-0 z-30 flex items-center justify-between border-b border-white/[0.05] bg-black/85 px-3 py-2.5 backdrop-blur-xl md:hidden">
+    <div className="min-h-dvh text-white">
+      {/* Header — glass */}
+      <header className="safe-top sticky top-0 z-30 flex items-center justify-between border-b border-white/[0.08] bg-black/40 px-3 py-2 backdrop-blur-2xl md:hidden">
         <button
           type="button"
           onClick={() => setDrawer(true)}
-          className="flex h-10 w-10 items-center justify-center rounded-xl text-white/70 active:bg-white/5"
+          className="flex h-9 w-9 items-center justify-center rounded-xl text-white/70 active:bg-white/10"
           aria-label="منو"
         >
-          <Menu size={22} strokeWidth={1.75} />
+          <Menu size={20} strokeWidth={1.75} />
         </button>
-        <p className="text-[15px] font-bold tracking-tight text-primary">Fitopia</p>
+        <p className="text-[14px] font-bold tracking-tight text-primary">Fitopia</p>
         <button
           type="button"
           onClick={() => navigate("/app/profile")}
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/20 text-xs font-bold text-primary ring-1 ring-primary/30"
+          className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-[11px] font-bold text-primary ring-1 ring-primary/25"
         >
           {(profile?.full_name?.[0] || "م").toUpperCase()}
         </button>
       </header>
 
-      {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 start-0 z-40 hidden w-[248px] flex-col border-e border-white/[0.06] bg-[#0A0A0A] md:flex">
-        <div className="px-5 py-6">
-          <p className="text-xl font-bold tracking-tight text-primary">Fitopia</p>
-          <p className="mt-2 truncate text-sm font-medium text-white/70">{profile?.full_name || "مربی"}</p>
-          <p className="truncate text-xs text-white/35">{profile?.gym_name || "پنل مربی"}</p>
+      {/* Desktop sidebar — glass */}
+      <aside className="glass-strong fixed inset-y-0 start-0 z-40 hidden w-[220px] flex-col border-e border-white/[0.08] md:flex">
+        <div className="px-4 py-5">
+          <p className="text-lg font-bold tracking-tight text-primary">Fitopia</p>
+          <p className="mt-1.5 truncate text-[13px] font-medium text-white/70">{profile?.full_name || "مربی"}</p>
+          <p className="truncate text-[11px] text-white/35">{profile?.gym_name || "پنل مربی"}</p>
         </div>
-        <nav className="flex-1 space-y-0.5 overflow-y-auto px-3">
+        <nav className="flex-1 space-y-0.5 overflow-y-auto px-2.5">
           {NAV.map(({ to, end, label, Icon }) => {
             const active = isActivePath(pathname, to, end);
             return (
@@ -87,13 +87,13 @@ export function AppShell() {
                 key={to}
                 to={to}
                 end={end}
-                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-medium transition ${
+                className={`flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] font-medium transition ${
                   active
                     ? "bg-primary/15 text-primary"
-                    : "text-white/45 hover:bg-white/[0.04] hover:text-white"
+                    : "text-white/45 hover:bg-white/[0.05] hover:text-white"
                 }`}
               >
-                <Icon size={18} strokeWidth={active ? 2.2 : 1.7} />
+                <Icon size={16} strokeWidth={active ? 2.2 : 1.7} />
                 {label}
               </NavLink>
             );
@@ -102,9 +102,9 @@ export function AppShell() {
         <button
           type="button"
           onClick={onLogout}
-          className="mx-3 mb-4 flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-medium text-white/35 transition hover:bg-white/[0.04] hover:text-white/60"
+          className="mx-2.5 mb-3 flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] font-medium text-white/35 hover:bg-white/[0.04]"
         >
-          <LogOut size={18} />
+          <LogOut size={16} />
           خروج
         </button>
       </aside>
@@ -112,18 +112,18 @@ export function AppShell() {
       {/* Mobile drawer */}
       {drawer ? (
         <div className="fixed inset-0 z-50 md:hidden">
-          <button type="button" className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setDrawer(false)} aria-label="بستن" />
-          <div className="absolute inset-y-0 start-0 flex w-[min(80vw,300px)] flex-col bg-[#0A0A0A] shadow-2xl">
-            <div className="safe-top flex items-center justify-between border-b border-white/[0.06] px-4 py-4">
+          <button type="button" className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setDrawer(false)} aria-label="بستن" />
+          <div className="glass-strong absolute inset-y-0 start-0 flex w-[min(78vw,280px)] flex-col">
+            <div className="safe-top flex items-center justify-between border-b border-white/[0.08] px-4 py-3.5">
               <div>
-                <p className="text-lg font-bold text-primary">منو</p>
-                <p className="text-xs text-white/40">{profile?.full_name}</p>
+                <p className="text-[15px] font-bold text-primary">منو</p>
+                <p className="text-[11px] text-white/40">{profile?.full_name}</p>
               </div>
-              <button type="button" onClick={() => setDrawer(false)} className="flex h-9 w-9 items-center justify-center rounded-xl text-white/50 active:bg-white/5">
-                <X size={20} />
+              <button type="button" onClick={() => setDrawer(false)} className="flex h-8 w-8 items-center justify-center rounded-xl text-white/50">
+                <X size={18} />
               </button>
             </div>
-            <nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
+            <nav className="flex-1 space-y-0.5 overflow-y-auto p-2.5">
               {NAV.map(({ to, end, label, Icon }) => {
                 const active = isActivePath(pathname, to, end);
                 return (
@@ -132,41 +132,33 @@ export function AppShell() {
                     to={to}
                     end={end}
                     onClick={() => setDrawer(false)}
-                    className={`flex items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-medium ${
+                    className={`flex items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-[13px] font-medium ${
                       active ? "bg-primary/15 text-primary" : "text-white/55"
                     }`}
                   >
-                    <Icon size={18} strokeWidth={active ? 2.2 : 1.7} />
+                    <Icon size={16} strokeWidth={active ? 2.2 : 1.7} />
                     {label}
                   </NavLink>
                 );
               })}
             </nav>
-            <button
-              type="button"
-              onClick={onLogout}
-              className="m-3 flex items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-medium text-white/40"
-            >
-              <LogOut size={18} />
+            <button type="button" onClick={onLogout} className="m-2.5 flex items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-[13px] font-medium text-white/40">
+              <LogOut size={16} />
               خروج از حساب
             </button>
           </div>
         </div>
       ) : null}
 
-      {/* Content */}
-      <main className="md:ps-[248px]">
-        <div className="min-h-dvh pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-8">
+      <main className="md:ps-[220px]">
+        <div className="min-h-dvh pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-6">
           <Outlet />
         </div>
       </main>
 
-      {/* Bottom nav — floating pill */}
-      <nav
-        className="safe-bottom fixed inset-x-0 bottom-0 z-40 px-3 pb-2.5 md:hidden"
-        aria-label="ناوبری اصلی"
-      >
-        <div className="mx-auto flex max-w-[400px] items-center justify-between gap-0.5 rounded-[22px] border border-white/[0.08] bg-[#121212]/95 px-1.5 py-1.5 shadow-[0_8px_40px_rgba(0,0,0,0.55)] backdrop-blur-2xl">
+      {/* Bottom nav — glass pill */}
+      <nav className="safe-bottom fixed inset-x-0 bottom-0 z-40 px-3 pb-2 md:hidden" aria-label="ناوبری">
+        <div className="glass-strong mx-auto flex max-w-[380px] items-center justify-between rounded-[20px] px-1 py-1">
           {BOTTOM.map(({ to, end, label, Icon }) => {
             const active = isActivePath(pathname, to, end);
             return (
@@ -174,25 +166,18 @@ export function AppShell() {
                 key={to}
                 to={to}
                 end={end}
-                className="relative flex flex-1 flex-col items-center gap-0.5 rounded-2xl py-1.5 transition"
+                className="flex flex-1 flex-col items-center gap-0.5 rounded-2xl py-1"
               >
                 <span
-                  className={`flex h-9 w-9 items-center justify-center rounded-full transition-all duration-200 ${
+                  className={`flex h-8 w-8 items-center justify-center rounded-full transition-all ${
                     active
-                      ? "bg-primary text-black shadow-[0_4px_16px_rgba(255,106,0,0.4)]"
+                      ? "bg-primary text-black shadow-[0_3px_12px_rgba(255,106,0,0.4)]"
                       : "text-white/40"
                   }`}
                 >
-                  <Icon
-                    size={active ? 18 : 20}
-                    strokeWidth={active ? 2.3 : 1.55}
-                  />
+                  <Icon size={active ? 16 : 18} strokeWidth={active ? 2.3 : 1.55} />
                 </span>
-                <span
-                  className={`text-[10px] font-semibold leading-none ${
-                    active ? "text-primary" : "text-white/35"
-                  }`}
-                >
+                <span className={`text-[9px] font-semibold ${active ? "text-primary" : "text-white/35"}`}>
                   {label}
                 </span>
               </NavLink>
