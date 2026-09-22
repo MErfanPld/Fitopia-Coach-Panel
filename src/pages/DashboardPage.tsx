@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Users, ClipboardList, Trophy, Rss, TrendingUp,
-  Dumbbell, CalendarDays, Utensils, Medal, ChevronLeft,
+  Dumbbell, CalendarDays, ChevronLeft, Plus,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { coachApi } from "../api/client";
@@ -17,20 +17,14 @@ export function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
 
   const load = async () => {
-    if (!gymId) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    setError(null);
+    if (!gymId) { setLoading(false); return; }
+    setLoading(true); setError(null);
     try {
       const now = new Date();
-      setData(
-        (await coachApi.analytics(gymId, {
-          year: now.getFullYear(),
-          month: now.getMonth() + 1,
-        })) as Analytics,
-      );
+      setData(await coachApi.analytics(gymId, {
+        year: now.getFullYear(),
+        month: now.getMonth() + 1,
+      }) as Analytics);
     } catch (e) {
       setError(e instanceof Error ? e.message : "خطا");
     } finally {
@@ -38,143 +32,116 @@ export function DashboardPage() {
     }
   };
 
-  useEffect(() => {
-    void load();
-  }, [gymId]);
+  useEffect(() => { void load(); }, [gymId]);
 
   const firstName = profile?.full_name?.split(" ")[0] || "مربی";
-  const monthLabel = new Date().toLocaleDateString("fa-IR", {
+  const today = new Date().toLocaleDateString("fa-IR", {
+    weekday: "long",
+    day: "numeric",
     month: "long",
-    year: "numeric",
   });
 
-  const stats = [
-    {
-      label: "کل شاگردان",
-      value: data?.total_students ?? "—",
-      Icon: Users,
-      to: "/app/students",
-      accent: "from-orange-500/20 to-orange-600/5",
-    },
-    {
-      label: "فعال",
-      value: data?.active_students ?? "—",
-      Icon: TrendingUp,
-      to: "/app/students",
-      accent: "from-emerald-500/20 to-emerald-600/5",
-    },
-    {
-      label: "تمرین‌ها",
-      value: data?.workouts ?? "—",
-      Icon: ClipboardList,
-      to: "/app/workouts",
-      accent: "from-sky-500/20 to-sky-600/5",
-    },
-    {
-      label: "رکوردها",
-      value: data?.prs ?? "—",
-      Icon: Trophy,
-      to: "/app/prs",
-      accent: "from-amber-500/20 to-amber-600/5",
-    },
+  const metrics = [
+    { label: "شاگردان", value: data?.total_students ?? "—", sub: `${data?.active_students ?? "—"} فعال`, to: "/app/students" },
+    { label: "تمرین", value: data?.workouts ?? "—", sub: "این ماه", to: "/app/workouts" },
+    { label: "رکورد", value: data?.prs ?? "—", sub: "PR", to: "/app/prs" },
+    { label: "پست", value: data?.posts ?? "—", sub: "فید", to: "/app/feed" },
   ];
 
-  const quick = [
+  const actions = [
     { label: "ثبت تمرین", Icon: ClipboardList, to: "/app/workouts" },
-    { label: "شاگردان", Icon: Users, to: "/app/students" },
-    { label: "حرکات", Icon: Dumbbell, to: "/app/exercises" },
+    { label: "شاگرد جدید", Icon: Users, to: "/app/students" },
+    { label: "حرکت", Icon: Dumbbell, to: "/app/exercises" },
     { label: "برنامه", Icon: CalendarDays, to: "/app/training" },
-    { label: "غذا", Icon: Utensils, to: "/app/diet" },
-    { label: "فید", Icon: Rss, to: "/app/feed" },
-    { label: "لیدربورد", Icon: Medal, to: "/app/leaderboard" },
     { label: "پیشرفت", Icon: TrendingUp, to: "/app/progress" },
+    { label: "فید", Icon: Rss, to: "/app/feed" },
   ];
 
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-5 px-4 pt-4 md:px-6 md:pt-6">
-      {/* Hero */}
-      <section className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-br from-[#1a1410] via-[#121216] to-[#121216] p-5">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -start-10 -top-10 h-40 w-40 rounded-full bg-primary/20 blur-3xl"
-        />
-        <div className="relative">
-          <p className="text-xs font-semibold text-white/40">{monthLabel}</p>
-          <h1 className="mt-1 text-2xl font-black tracking-tight text-white md:text-3xl">
-            سلام {firstName} 👋
-          </h1>
-          <p className="mt-1 text-sm text-white/50">
-            {profile?.gym_name || "داشبورد مربی"}
-          </p>
-          {data?.posts != null ? (
-            <button
-              type="button"
-              onClick={() => navigate("/app/feed")}
-              className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-semibold text-white/70"
-            >
-              <Rss size={13} className="text-primary" />
-              {data.posts} پست این ماه
-              <ChevronLeft size={14} className="text-white/30" />
-            </button>
-          ) : null}
-        </div>
-      </section>
+    <div className="mx-auto w-full max-w-lg px-5 pt-2 md:max-w-2xl md:pt-8">
+      {/* Greeting — LiftAI style large type */}
+      <header className="mb-8 pt-2">
+        <p className="text-[13px] font-medium text-white/40">{today}</p>
+        <h1 className="mt-1 text-[28px] font-bold leading-tight tracking-tight text-white md:text-[32px]">
+          سلام، {firstName}
+        </h1>
+        {profile?.gym_name ? (
+          <p className="mt-1 text-[14px] text-white/45">{profile.gym_name}</p>
+        ) : null}
+      </header>
 
-      {!gymId ? (
-        <ErrorBanner message="باشگاهی به حساب شما متصل نیست." />
-      ) : null}
-      {loading ? <LoadingBlock /> : null}
+      {!gymId ? <ErrorBanner message="باشگاهی به حساب شما متصل نیست." /> : null}
+      {loading ? <LoadingBlock label="در حال بارگذاری…" /> : null}
       {error ? <ErrorBanner message={error} onRetry={load} /> : null}
 
-      {/* آمار */}
       {!loading && !error && gymId ? (
-        <section>
-          <div className="mb-2.5 flex items-center justify-between">
-            <h2 className="text-sm font-bold text-white/70">آمار ماه جاری</h2>
-          </div>
-          <div className="grid grid-cols-2 gap-2.5">
-            {stats.map(({ label, value, Icon, to, accent }) => (
-              <button
-                key={label}
-                type="button"
-                onClick={() => navigate(to)}
-                className={`relative overflow-hidden rounded-2xl border border-white/[0.07] bg-gradient-to-br ${accent} p-4 text-right transition active:scale-[0.98]`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-black/25 text-primary">
-                    <Icon size={18} strokeWidth={1.85} />
-                  </span>
-                  <ChevronLeft size={15} className="text-white/20" />
-                </div>
-                <p className="mt-3 text-2xl font-black tabular-nums text-white">
-                  {value}
-                </p>
-                <p className="mt-0.5 text-xs font-medium text-white/45">{label}</p>
-              </button>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      {/* دسترسی سریع */}
-      <section>
-        <h2 className="mb-2.5 text-sm font-bold text-white/70">دسترسی سریع</h2>
-        <div className="grid grid-cols-4 gap-2">
-          {quick.map(({ label, Icon, to }) => (
-            <button
-              key={to + label}
-              type="button"
-              onClick={() => navigate(to)}
-              className="flex flex-col items-center gap-2 rounded-2xl border border-white/[0.07] bg-[#121216] px-2 py-3 transition active:scale-[0.96] active:border-primary/30"
-            >
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/12 text-primary">
-                <Icon size={18} strokeWidth={1.85} />
+        <>
+          {/* Primary CTA */}
+          <button
+            type="button"
+            onClick={() => navigate("/app/workouts")}
+            className="mb-6 flex w-full items-center justify-between rounded-2xl bg-white px-5 py-4 text-black transition active:scale-[0.98]"
+          >
+            <div className="flex items-center gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-black text-white">
+                <Plus size={20} strokeWidth={2.5} />
               </span>
-              <span className="text-[11px] font-semibold text-white/65">{label}</span>
-            </button>
-          ))}
-        </div>
-      </section>
+              <div className="text-right">
+                <p className="text-[15px] font-bold">ثبت تمرین جدید</p>
+                <p className="text-[12px] text-black/50">جلسه امروز را لاگ کن</p>
+              </div>
+            </div>
+            <ChevronLeft size={18} className="text-black/30" />
+          </button>
+
+          {/* Metrics row */}
+          <section className="mb-8">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-[13px] font-semibold uppercase tracking-wider text-white/35">
+                این ماه
+              </h2>
+            </div>
+            <div className="grid grid-cols-4 gap-2">
+              {metrics.map((m) => (
+                <button
+                  key={m.label}
+                  type="button"
+                  onClick={() => navigate(m.to)}
+                  className="rounded-2xl bg-[#141414] px-2 py-3 text-center transition active:bg-[#1a1a1a]"
+                >
+                  <p className="text-[20px] font-bold tabular-nums text-white">{m.value}</p>
+                  <p className="mt-0.5 text-[11px] font-medium text-white/40">{m.label}</p>
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {/* Quick links list */}
+          <section>
+            <h2 className="mb-3 text-[13px] font-semibold uppercase tracking-wider text-white/35">
+              میانبرها
+            </h2>
+            <div className="overflow-hidden rounded-2xl bg-[#141414]">
+              {actions.map(({ label, Icon, to }, i) => (
+                <button
+                  key={to + label}
+                  type="button"
+                  onClick={() => navigate(to)}
+                  className={`flex w-full items-center gap-3.5 px-4 py-3.5 text-right transition active:bg-white/[0.04] ${
+                    i < actions.length - 1 ? "border-b border-white/[0.06]" : ""
+                  }`}
+                >
+                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/[0.06] text-white">
+                    <Icon size={17} strokeWidth={1.75} />
+                  </span>
+                  <span className="flex-1 text-[15px] font-medium text-white">{label}</span>
+                  <ChevronLeft size={16} className="text-white/20" />
+                </button>
+              ))}
+            </div>
+          </section>
+        </>
+      ) : null}
     </div>
   );
 }
