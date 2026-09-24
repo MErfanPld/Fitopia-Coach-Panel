@@ -9,6 +9,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: "autoUpdate",
+      includeAssets: ["favicon.svg"],
       manifest: {
         name: "Fitopia Coach",
         short_name: "Coach",
@@ -16,20 +17,41 @@ export default defineConfig({
         theme_color: "#FF6A00",
         background_color: "#07070A",
         display: "standalone",
-        orientation: "portrait",
+        orientation: "any",
         dir: "rtl",
         lang: "fa",
         start_url: "/welcome",
+        scope: "/",
         icons: [
-          { src: "/favicon.svg", sizes: "any", type: "image/svg+xml", purpose: "any maskable" },
+          {
+            src: "/favicon.svg",
+            sizes: "any",
+            type: "image/svg+xml",
+            purpose: "any",
+          },
+          {
+            src: "/favicon.svg",
+            sizes: "any",
+            type: "image/svg+xml",
+            purpose: "maskable",
+          },
         ],
       },
-      workbox: { navigateFallback: "/index.html", globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"] },
+      workbox: {
+        navigateFallback: "/index.html",
+        globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+      },
     }),
   ],
   server: {
     port: 5174,
     host: "0.0.0.0",
-    proxy: { "/api": { target: "https://fitopiaapi.pythonanywhere.com", changeOrigin: true, secure: true } },
+    proxy: {
+      "/api": {
+        target: "https://fitopiaapi.pythonanywhere.com",
+        changeOrigin: true,
+        secure: true,
+      },
+    },
   },
 });

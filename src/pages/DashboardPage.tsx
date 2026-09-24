@@ -18,14 +18,20 @@ export function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
 
   const load = async () => {
-    if (!gymId) { setLoading(false); return; }
-    setLoading(true); setError(null);
+    if (!gymId) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    setError(null);
     try {
       const now = new Date();
-      setData(await coachApi.analytics(gymId, {
-        year: now.getFullYear(),
-        month: now.getMonth() + 1,
-      }) as Analytics);
+      setData(
+        (await coachApi.analytics(gymId, {
+          year: now.getFullYear(),
+          month: now.getMonth() + 1,
+        })) as Analytics,
+      );
     } catch (e) {
       setError(e instanceof Error ? e.message : "خطا");
     } finally {
@@ -33,7 +39,9 @@ export function DashboardPage() {
     }
   };
 
-  useEffect(() => { void load(); }, [gymId]);
+  useEffect(() => {
+    void load();
+  }, [gymId]);
 
   const firstName = profile?.full_name?.split(" ")[0] || "مربی";
   const todayFa = formatFaWeekday();
@@ -79,11 +87,10 @@ export function DashboardPage() {
   ];
 
   return (
-    <div className="mx-auto w-full max-w-lg space-y-7 px-4 pt-4 md:max-w-2xl md:px-6 md:pt-8">
-      {/* Greeting — room to breathe */}
+    <div className="w-full space-y-6 px-4 pt-4 sm:space-y-7 sm:px-5 md:px-6 md:pt-8 lg:px-8">
       <header className="space-y-1.5">
         <p className="text-[12px] font-medium text-white/40">{todayFa}</p>
-        <h1 className="text-[24px] font-bold leading-snug tracking-tight text-white md:text-[28px]">
+        <h1 className="text-[22px] font-bold leading-snug tracking-tight text-white sm:text-[24px] md:text-[28px]">
           سلام، {firstName}
         </h1>
         {profile?.gym_name ? (
@@ -100,11 +107,10 @@ export function DashboardPage() {
 
       {!loading && !error && gymId ? (
         <>
-          {/* CTA */}
           <button
             type="button"
             onClick={() => navigate("/app/workouts")}
-            className="flex w-full items-center gap-3.5 rounded-2xl bg-gradient-to-l from-primary to-[#ff8a33] px-4 py-3.5 text-black shadow-[0_8px_28px_rgba(255,106,0,0.28)] transition active:scale-[0.98]"
+            className="flex w-full max-w-xl items-center gap-3.5 rounded-2xl bg-gradient-to-l from-primary to-[#ff8a33] px-4 py-3.5 text-black shadow-[0_8px_28px_rgba(255,106,0,0.28)] transition active:scale-[0.98] md:max-w-none lg:max-w-2xl"
           >
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-black/15">
               <Plus size={20} strokeWidth={2.5} />
@@ -116,18 +122,15 @@ export function DashboardPage() {
             <ChevronLeft size={18} className="shrink-0 text-black/35" />
           </button>
 
-          {/* Stats */}
           <section className="space-y-3">
-            <h2 className="text-[12px] font-semibold tracking-wide text-white/40">
-              آمار ماه جاری
-            </h2>
-            <div className="grid grid-cols-2 gap-3">
+            <h2 className="text-[12px] font-semibold tracking-wide text-white/40">آمار ماه جاری</h2>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-4">
               {cards.map(({ label, value, hint, Icon, to }) => (
                 <button
                   key={label}
                   type="button"
                   onClick={() => navigate(to)}
-                  className="card group text-right transition active:scale-[0.98]"
+                  className="card group text-right transition hover:border-primary/25 active:scale-[0.98]"
                 >
                   <div className="mb-3 flex items-center justify-between">
                     <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/15 text-primary">
@@ -135,30 +138,25 @@ export function DashboardPage() {
                     </span>
                     <ChevronLeft size={13} className="text-white/20" />
                   </div>
-                  <p className="text-[24px] font-bold tabular-nums leading-none text-white">
+                  <p className="text-[22px] font-bold tabular-nums leading-none text-white md:text-[24px]">
                     {value}
                   </p>
                   <p className="mt-1.5 text-[12px] font-medium text-white/55">{label}</p>
-                  {hint ? (
-                    <p className="mt-0.5 text-[11px] text-white/30">{hint}</p>
-                  ) : null}
+                  {hint ? <p className="mt-0.5 text-[11px] text-white/30">{hint}</p> : null}
                 </button>
               ))}
             </div>
           </section>
 
-          {/* Shortcuts */}
           <section className="space-y-3 pb-2">
-            <h2 className="text-[12px] font-semibold tracking-wide text-white/40">
-              میانبرها
-            </h2>
-            <div className="grid grid-cols-3 gap-2.5">
+            <h2 className="text-[12px] font-semibold tracking-wide text-white/40">میانبرها</h2>
+            <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-3 md:grid-cols-6">
               {shortcuts.map(({ label, Icon, to }) => (
                 <button
                   key={to + label}
                   type="button"
                   onClick={() => navigate(to)}
-                  className="card flex flex-col items-center gap-2 py-4 transition active:scale-[0.96]"
+                  className="card flex flex-col items-center gap-2 py-4 transition hover:border-primary/20 active:scale-[0.96]"
                 >
                   <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/12 text-primary">
                     <Icon size={16} strokeWidth={1.85} />

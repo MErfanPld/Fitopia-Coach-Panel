@@ -60,6 +60,19 @@ body::before {
   pointer-events: none;
 }
 
+/* Content frame — centers & caps width on large screens */
+.page-frame {
+  width: 100%;
+  max-width: 72rem; /* ~1152px */
+  margin-inline: auto;
+}
+
+@media (min-width: 1536px) {
+  .page-frame {
+    max-width: 80rem; /* ~1280px on 2xl */
+  }
+}
+
 /* ——— Glass ——— */
 .glass {
   background: rgba(255, 255, 255, 0.07);
@@ -88,7 +101,6 @@ body::before {
   -webkit-backdrop-filter: blur(16px);
 }
 
-/* Form fields — solid dark so native dropdowns work */
 .field {
   width: 100%;
   min-height: 44px;
@@ -113,7 +125,6 @@ textarea.field {
   resize: vertical;
 }
 
-/* Select / dropdown fix */
 select.field,
 select {
   appearance: none;
@@ -138,7 +149,6 @@ select option {
   padding: 10px;
 }
 
-/* Date / time inputs */
 input[type="date"].field,
 input[type="datetime-local"].field,
 input[type="time"].field {
@@ -173,7 +183,6 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 .btn-danger { background: rgba(239, 68, 68, 0.12); color: #fca5a5; border: none; }
 .btn-sm { min-height: 34px; padding: 0 12px; font-size: 12px; border-radius: 10px; }
 
-/* Cards = glass everywhere */
 .card {
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.07);
@@ -201,3 +210,16 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 .safe-bottom { padding-bottom: max(0.4rem, env(safe-area-inset-bottom)); }
 .safe-top { padding-top: max(0.4rem, env(safe-area-inset-top)); }
+
+/* Responsive list grids for CRUD pages */
+.list-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 640px) {
+  .list-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1024px) {
+  .list-grid { grid-template-columns: repeat(3, 1fr); }
+}

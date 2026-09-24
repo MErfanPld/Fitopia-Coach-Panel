@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { AddToHomeScreen } from "./AddToHomeScreen";
 
 const NAV = [
   { to: "/app", end: true, label: "خانه", Icon: House },
@@ -39,10 +40,15 @@ export function AppShell() {
   const { pathname } = useLocation();
   const [drawer, setDrawer] = useState(false);
 
-  useEffect(() => { setDrawer(false); }, [pathname]);
+  useEffect(() => {
+    setDrawer(false);
+  }, [pathname]);
+
   useEffect(() => {
     document.body.style.overflow = drawer ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [drawer]);
 
   const onLogout = () => {
@@ -52,7 +58,7 @@ export function AppShell() {
 
   return (
     <div className="min-h-dvh text-white">
-      {/* Header — glass */}
+      {/* Mobile header */}
       <header className="safe-top sticky top-0 z-30 flex items-center justify-between border-b border-white/[0.08] bg-black/40 px-3 py-2 backdrop-blur-2xl md:hidden">
         <button
           type="button"
@@ -62,7 +68,7 @@ export function AppShell() {
         >
           <Menu size={20} strokeWidth={1.75} />
         </button>
-        <p className="text-[14px] font-bold tracking-tight text-primary">Fitopia</p>
+        <p className="text-[14px] font-bold tracking-tight text-primary">Fitopia Coach</p>
         <button
           type="button"
           onClick={() => navigate("/app/profile")}
@@ -72,14 +78,16 @@ export function AppShell() {
         </button>
       </header>
 
-      {/* Desktop sidebar — glass */}
-      <aside className="glass-strong fixed inset-y-0 start-0 z-40 hidden w-[220px] flex-col border-e border-white/[0.08] md:flex">
-        <div className="px-4 py-5">
-          <p className="text-lg font-bold tracking-tight text-primary">Fitopia</p>
-          <p className="mt-1.5 truncate text-[13px] font-medium text-white/70">{profile?.full_name || "مربی"}</p>
+      {/* Tablet + Desktop sidebar */}
+      <aside className="glass-strong fixed inset-y-0 start-0 z-40 hidden w-[200px] flex-col border-e border-white/[0.08] md:flex lg:w-[240px]">
+        <div className="px-3 py-5 lg:px-4">
+          <p className="text-base font-bold tracking-tight text-primary lg:text-lg">Fitopia Coach</p>
+          <p className="mt-1.5 truncate text-[12px] font-medium text-white/70 lg:text-[13px]">
+            {profile?.full_name || "مربی"}
+          </p>
           <p className="truncate text-[11px] text-white/35">{profile?.gym_name || "پنل مربی"}</p>
         </div>
-        <nav className="flex-1 space-y-0.5 overflow-y-auto px-2.5">
+        <nav className="flex-1 space-y-0.5 overflow-y-auto px-2 lg:px-2.5">
           {NAV.map(({ to, end, label, Icon }) => {
             const active = isActivePath(pathname, to, end);
             return (
@@ -87,14 +95,14 @@ export function AppShell() {
                 key={to}
                 to={to}
                 end={end}
-                className={`flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] font-medium transition ${
+                className={`flex items-center gap-2 rounded-xl px-2 py-2 text-[12.5px] font-medium transition lg:gap-2.5 lg:px-2.5 lg:text-[13px] ${
                   active
                     ? "bg-primary/15 text-primary"
                     : "text-white/45 hover:bg-white/[0.05] hover:text-white"
                 }`}
               >
-                <Icon size={16} strokeWidth={active ? 2.2 : 1.7} />
-                {label}
+                <Icon size={16} strokeWidth={active ? 2.2 : 1.7} className="shrink-0" />
+                <span className="truncate">{label}</span>
               </NavLink>
             );
           })}
@@ -102,7 +110,7 @@ export function AppShell() {
         <button
           type="button"
           onClick={onLogout}
-          className="mx-2.5 mb-3 flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] font-medium text-white/35 hover:bg-white/[0.04]"
+          className="mx-2 mb-3 flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] font-medium text-white/35 hover:bg-white/[0.04] lg:mx-2.5"
         >
           <LogOut size={16} />
           خروج
@@ -112,14 +120,23 @@ export function AppShell() {
       {/* Mobile drawer */}
       {drawer ? (
         <div className="fixed inset-0 z-50 md:hidden">
-          <button type="button" className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setDrawer(false)} aria-label="بستن" />
-          <div className="glass-strong absolute inset-y-0 start-0 flex w-[min(78vw,280px)] flex-col">
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setDrawer(false)}
+            aria-label="بستن"
+          />
+          <div className="glass-strong absolute inset-y-0 start-0 flex w-[min(82vw,300px)] flex-col">
             <div className="safe-top flex items-center justify-between border-b border-white/[0.08] px-4 py-3.5">
               <div>
                 <p className="text-[15px] font-bold text-primary">منو</p>
                 <p className="text-[11px] text-white/40">{profile?.full_name}</p>
               </div>
-              <button type="button" onClick={() => setDrawer(false)} className="flex h-8 w-8 items-center justify-center rounded-xl text-white/50">
+              <button
+                type="button"
+                onClick={() => setDrawer(false)}
+                className="flex h-8 w-8 items-center justify-center rounded-xl text-white/50"
+              >
                 <X size={18} />
               </button>
             </div>
@@ -142,7 +159,11 @@ export function AppShell() {
                 );
               })}
             </nav>
-            <button type="button" onClick={onLogout} className="m-2.5 flex items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-[13px] font-medium text-white/40">
+            <button
+              type="button"
+              onClick={onLogout}
+              className="m-2.5 flex items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-[13px] font-medium text-white/40"
+            >
               <LogOut size={16} />
               خروج از حساب
             </button>
@@ -150,24 +171,22 @@ export function AppShell() {
         </div>
       ) : null}
 
-      <main className="md:ps-[220px]">
-        <div className="min-h-dvh pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-6">
-          <Outlet />
+      {/* Main — responsive padding for sidebar */}
+      <main className="md:ps-[200px] lg:ps-[240px]">
+        <div className="min-h-dvh pb-[calc(4.75rem+env(safe-area-inset-bottom))] md:pb-8">
+          <div className="page-frame">
+            <Outlet />
+          </div>
         </div>
       </main>
 
-      {/* Bottom nav — glass pill */}
+      {/* Bottom nav — phone only */}
       <nav className="safe-bottom fixed inset-x-0 bottom-0 z-40 px-3 pb-2 md:hidden" aria-label="ناوبری">
-        <div className="glass-strong mx-auto flex max-w-[380px] items-center justify-between rounded-[20px] px-1 py-1">
+        <div className="glass-strong mx-auto flex max-w-[min(100%,420px)] items-center justify-between rounded-[20px] px-1 py-1">
           {BOTTOM.map(({ to, end, label, Icon }) => {
             const active = isActivePath(pathname, to, end);
             return (
-              <NavLink
-                key={to}
-                to={to}
-                end={end}
-                className="flex flex-1 flex-col items-center gap-0.5 rounded-2xl py-1"
-              >
+              <NavLink key={to} to={to} end={end} className="flex flex-1 flex-col items-center gap-0.5 rounded-2xl py-1">
                 <span
                   className={`flex h-8 w-8 items-center justify-center rounded-full transition-all ${
                     active
@@ -185,6 +204,8 @@ export function AppShell() {
           })}
         </div>
       </nav>
+
+      <AddToHomeScreen />
     </div>
   );
 }
