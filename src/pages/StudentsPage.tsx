@@ -24,7 +24,8 @@ export function StudentsPage() {
 
   const load = async () => {
     if (!gymId) return;
-    setLoading(true); setError(null);
+    setLoading(true);
+    setError(null);
     try {
       setItems(listify<Student>(await coachApi.students(gymId, activeOnly)));
     } catch (e) {
@@ -33,7 +34,9 @@ export function StudentsPage() {
       setLoading(false);
     }
   };
-  useEffect(() => { void load(); }, [gymId, activeOnly]);
+  useEffect(() => {
+    void load();
+  }, [gymId, activeOnly]);
 
   const filtered = items.filter(
     (s) => !q || s.full_name?.includes(q) || s.phone?.includes(q),
@@ -112,8 +115,13 @@ export function StudentsPage() {
     >
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <Search size={15} className="absolute start-3 top-1/2 -translate-y-1/2 text-white/35" />
-          <input className="field ps-10" placeholder="جستجو…" value={q} onChange={(e) => setQ(e.target.value)} />
+          <Search size={15} className="absolute start-3.5 top-1/2 -translate-y-1/2 text-white/35" />
+          <input
+            className="field ps-10"
+            placeholder="جستجوی نام یا موبایل…"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
         </div>
         <button
           type="button"
@@ -127,26 +135,39 @@ export function StudentsPage() {
       {loading ? <LoadingBlock /> : null}
       {error ? <ErrorBanner message={error} onRetry={load} /> : null}
       {!loading && !error && filtered.length === 0 ? (
-        <EmptyState title="شاگردی یافت نشد" hint="با دکمه جدید اضافه کنید" />
+        <EmptyState title="شاگردی یافت نشد" hint="با دکمه جدید اولین شاگرد را اضافه کنید" />
       ) : null}
 
-      <div className="space-y-2">
+      <div className="space-y-2.5">
         {filtered.map((s) => (
-          <div key={s.id} className="card flex items-center gap-2.5">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/15 text-sm font-bold text-primary">
-              {s.full_name?.[0] || "?"}
-            </div>
+          <div key={s.id} className="row-item">
+            <div className="avatar">{s.full_name?.[0] || "?"}</div>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-[13px] font-bold text-white">{s.full_name}</p>
-              <p className="text-[11px] text-white/45">
-                {s.phone || "—"} · {GENDER_LABELS[s.gender || ""] || s.gender || "—"}
+              <div className="flex items-center gap-2">
+                <p className="truncate text-[13.5px] font-bold text-white">{s.full_name}</p>
+                <span className={s.is_active === false ? "status-dot-off status-dot" : "status-dot"} />
+              </div>
+              <p className="mt-0.5 text-[11.5px] text-white/45">
+                {s.phone || "بدون موبایل"}
+                {" · "}
+                {GENDER_LABELS[s.gender || ""] || s.gender || "—"}
                 {s.is_active === false ? " · غیرفعال" : ""}
               </p>
             </div>
-            <button type="button" className="rounded-lg p-1.5 text-white/45 active:bg-white/5" onClick={() => openEdit(s)}>
+            <button
+              type="button"
+              className="flex h-9 w-9 items-center justify-center rounded-xl text-white/40 hover:bg-white/[0.05] hover:text-white/70"
+              onClick={() => openEdit(s)}
+              aria-label="ویرایش"
+            >
               <Pencil size={15} />
             </button>
-            <button type="button" className="rounded-lg p-1.5 text-red-300/70" onClick={() => onDelete(s.id, s.full_name)}>
+            <button
+              type="button"
+              className="flex h-9 w-9 items-center justify-center rounded-xl text-red-300/60 hover:bg-red-500/10"
+              onClick={() => onDelete(s.id, s.full_name)}
+              aria-label="حذف"
+            >
               <Trash2 size={15} />
             </button>
           </div>
@@ -155,31 +176,52 @@ export function StudentsPage() {
 
       <Modal
         open={modal}
-        onClose={() => { setModal(false); setEditing(null); }}
+        onClose={() => {
+          setModal(false);
+          setEditing(null);
+        }}
         title={editing ? "ویرایش شاگرد" : "شاگرد جدید"}
       >
-        <form onSubmit={onSubmit} className="space-y-2.5">
+        <form onSubmit={onSubmit} className="space-y-3">
           <div>
-            <label className="mb-1 block text-[11px] text-white/50">نام کامل *</label>
-            <input className="field" required value={form.full_name} onChange={(e) => setForm((f) => ({ ...f, full_name: e.target.value }))} />
+            <label className="mb-1.5 block text-[11.5px] font-semibold text-white/50">نام کامل *</label>
+            <input
+              className="field"
+              required
+              value={form.full_name}
+              onChange={(e) => setForm((f) => ({ ...f, full_name: e.target.value }))}
+            />
           </div>
           <div>
-            <label className="mb-1 block text-[11px] text-white/50">موبایل</label>
-            <input className="field" dir="ltr" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} />
+            <label className="mb-1.5 block text-[11.5px] font-semibold text-white/50">موبایل</label>
+            <input
+              className="field"
+              dir="ltr"
+              value={form.phone}
+              onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+            />
           </div>
           <div>
-            <label className="mb-1 block text-[11px] text-white/50">جنسیت</label>
-            <select className="field" value={form.gender} onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value }))}>
+            <label className="mb-1.5 block text-[11.5px] font-semibold text-white/50">جنسیت</label>
+            <select
+              className="field"
+              value={form.gender}
+              onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value }))}
+            >
               <option value="male">آقا</option>
               <option value="female">خانم</option>
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-[11px] text-white/50">یادداشت</label>
-            <textarea className="field" value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} />
+            <label className="mb-1.5 block text-[11.5px] font-semibold text-white/50">یادداشت</label>
+            <textarea
+              className="field"
+              value={form.notes}
+              onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
+            />
           </div>
           {editing ? (
-            <label className="flex items-center gap-2 text-[13px] text-white/70">
+            <label className="flex items-center gap-2.5 text-[13px] text-white/70">
               <input
                 type="checkbox"
                 checked={form.is_active}
@@ -189,7 +231,11 @@ export function StudentsPage() {
             </label>
           ) : null}
           <button type="submit" disabled={saving} className="btn btn-primary w-full">
-            {saving ? "…" : editing ? "ذخیره تغییرات" : (<><UserPlus size={15} /> ثبت شاگرد</>)}
+            {saving ? "…" : editing ? "ذخیره تغییرات" : (
+              <>
+                <UserPlus size={15} /> ثبت شاگرد
+              </>
+            )}
           </button>
         </form>
       </Modal>
