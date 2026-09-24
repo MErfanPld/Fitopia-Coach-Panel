@@ -16,16 +16,19 @@ export function PageShell({
     <div className="w-full space-y-5 px-4 pb-8 pt-4 sm:px-5 md:px-6 md:pt-7 lg:px-8">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <h1 className="truncate text-[1.35rem] font-extrabold tracking-tight text-white md:text-[1.5rem]">
+          <h1
+            className="truncate text-[1.3rem] font-extrabold tracking-tight md:text-[1.45rem]"
+            style={{ color: "var(--app-fg)" }}
+          >
             {title}
           </h1>
           {subtitle ? (
-            <p className="mt-1.5 text-[0.875rem] text-white/45">{subtitle}</p>
+            <p className="mt-1.5 text-[0.875rem]" style={{ color: "var(--app-fg-muted)" }}>
+              {subtitle}
+            </p>
           ) : null}
         </div>
-        {actions ? (
-          <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>
-        ) : null}
+        {actions ? <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div> : null}
       </header>
       {children}
     </div>
@@ -49,11 +52,8 @@ export function SectionHeader({
 
 export function LoadingBlock({ label = "در حال بارگذاری…" }: { label?: string }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-3 py-20 text-white/45">
-      <div className="relative flex h-12 w-12 items-center justify-center">
-        <div className="absolute inset-0 rounded-2xl bg-primary/15 blur-md animate-pulse" />
-        <Loader2 className="relative h-6 w-6 animate-spin text-primary" />
-      </div>
+    <div className="flex flex-col items-center justify-center gap-3 py-20" style={{ color: "var(--app-fg-muted)" }}>
+      <Loader2 className="h-7 w-7 animate-spin text-primary" />
       <span className="text-[0.875rem] font-medium">{label}</span>
     </div>
   );
@@ -67,7 +67,14 @@ export function ErrorBanner({
   onRetry?: () => void;
 }) {
   return (
-    <div className="flex items-start gap-2.5 rounded-2xl border border-red-500/20 bg-red-500/[0.1] px-4 py-3.5 text-[0.875rem] text-red-200">
+    <div
+      className="flex items-start gap-2.5 rounded-2xl px-4 py-3.5 text-[0.875rem]"
+      style={{
+        background: "var(--app-danger-bg)",
+        color: "var(--app-danger)",
+        border: "1px solid color-mix(in srgb, var(--app-danger) 25%, transparent)",
+      }}
+    >
       <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
       <div className="flex-1">
         <p>{message}</p>
@@ -84,11 +91,14 @@ export function ErrorBanner({
 export function EmptyState({ title, hint }: { title: string; hint?: string }) {
   return (
     <div className="card flex flex-col items-center justify-center gap-2 py-14 text-center">
-      <div className="mb-1 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/[0.04] text-white/25">
-        <span className="text-lg">∅</span>
-      </div>
-      <p className="text-[0.9375rem] font-semibold text-white/65">{title}</p>
-      {hint ? <p className="max-w-[260px] text-[0.8125rem] leading-relaxed text-white/35">{hint}</p> : null}
+      <p className="text-[0.9375rem] font-semibold" style={{ color: "var(--app-fg-secondary)" }}>
+        {title}
+      </p>
+      {hint ? (
+        <p className="max-w-[260px] text-[0.8125rem] leading-relaxed" style={{ color: "var(--app-fg-muted)" }}>
+          {hint}
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -109,17 +119,24 @@ export function Modal({
     <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4">
       <button
         type="button"
-        className="absolute inset-0 bg-black/70 backdrop-blur-md"
+        className="absolute inset-0"
+        style={{ background: "var(--app-overlay)" }}
         onClick={onClose}
         aria-label="بستن"
       />
-      <div className="relative z-10 max-h-[92dvh] w-full max-w-lg overflow-y-auto rounded-t-[1.5rem] border border-white/[0.12] bg-[#141418] p-5 shadow-2xl sm:rounded-[1.5rem] md:max-w-xl">
+      <div
+        className="relative z-10 max-h-[92dvh] w-full max-w-lg overflow-y-auto rounded-t-[1.35rem] p-5 shadow-2xl sm:rounded-[1.35rem] md:max-w-xl"
+        style={{ background: "var(--app-surface)", border: "1px solid var(--app-border)" }}
+      >
         <div className="mb-4 flex items-center justify-between gap-2">
-          <h2 className="text-[1.0625rem] font-bold text-white">{title}</h2>
+          <h2 className="text-[1.0625rem] font-bold" style={{ color: "var(--app-fg)" }}>
+            {title}
+          </h2>
           <button
             type="button"
             onClick={onClose}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.05] text-white/45"
+            className="flex h-9 w-9 items-center justify-center rounded-full"
+            style={{ background: "var(--app-surface-2)", color: "var(--app-fg-muted)" }}
           >
             <X size={18} />
           </button>
