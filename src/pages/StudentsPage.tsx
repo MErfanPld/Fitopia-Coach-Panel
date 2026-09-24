@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { Plus, Search, Trash2, Pencil, UserPlus } from "lucide-react";
+import { Plus, Trash2, Pencil, UserPlus } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { coachApi } from "../api/client";
 import type { Student } from "../types";
 import { GENDER_LABELS } from "../types";
 import { PageShell, LoadingBlock, ErrorBanner, EmptyState, Modal, listify } from "../components/ui";
+import { FilterBar, SearchField, FilterChips } from "../components/FilterBar";
 
 const emptyForm = { full_name: "", phone: "", gender: "male", notes: "", is_active: true };
 
@@ -109,28 +110,25 @@ export function StudentsPage() {
       subtitle={`${filtered.length} نفر`}
       actions={
         <button type="button" className="btn btn-primary btn-sm" onClick={openCreate}>
-          <Plus size={14} /> جدید
+          <Plus size={16} /> جدید
         </button>
       }
     >
-      <div className="flex gap-2">
-        <div className="relative flex-1">
-          <Search size={15} className="absolute start-3.5 top-1/2 -translate-y-1/2 text-white/35" />
-          <input
-            className="field ps-10"
-            placeholder="جستجوی نام یا موبایل…"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-          />
-        </div>
-        <button
-          type="button"
-          className={`chip ${activeOnly ? "chip-active" : ""}`}
-          onClick={() => setActiveOnly((v) => !v)}
-        >
-          {activeOnly ? "فعال" : "همه"}
-        </button>
-      </div>
+      <FilterBar>
+        <SearchField
+          value={q}
+          onChange={setQ}
+          placeholder="جستجوی نام یا موبایل…"
+        />
+        <FilterChips
+          value={activeOnly ? "active" : "all"}
+          onChange={(v) => setActiveOnly(v === "active")}
+          options={[
+            { value: "active", label: "فعال" },
+            { value: "all", label: "همه" },
+          ]}
+        />
+      </FilterBar>
 
       {loading ? <LoadingBlock /> : null}
       {error ? <ErrorBanner message={error} onRetry={load} /> : null}
@@ -144,10 +142,10 @@ export function StudentsPage() {
             <div className="avatar">{s.full_name?.[0] || "?"}</div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
-                <p className="truncate text-[13.5px] font-bold text-white">{s.full_name}</p>
-                <span className={s.is_active === false ? "status-dot-off status-dot" : "status-dot"} />
+                <p className="row-title truncate">{s.full_name}</p>
+                <span className={s.is_active === false ? "status-dot status-dot-off" : "status-dot"} />
               </div>
-              <p className="mt-0.5 text-[11.5px] text-white/45">
+              <p className="row-meta">
                 {s.phone || "بدون موبایل"}
                 {" · "}
                 {GENDER_LABELS[s.gender || ""] || s.gender || "—"}
@@ -156,19 +154,19 @@ export function StudentsPage() {
             </div>
             <button
               type="button"
-              className="flex h-9 w-9 items-center justify-center rounded-xl text-white/40 hover:bg-white/[0.05] hover:text-white/70"
+              className="flex h-10 w-10 items-center justify-center rounded-xl text-white/45 hover:bg-white/[0.05] hover:text-white/75"
               onClick={() => openEdit(s)}
               aria-label="ویرایش"
             >
-              <Pencil size={15} />
+              <Pencil size={17} />
             </button>
             <button
               type="button"
-              className="flex h-9 w-9 items-center justify-center rounded-xl text-red-300/60 hover:bg-red-500/10"
+              className="flex h-10 w-10 items-center justify-center rounded-xl text-red-300/65 hover:bg-red-500/10"
               onClick={() => onDelete(s.id, s.full_name)}
               aria-label="حذف"
             >
-              <Trash2 size={15} />
+              <Trash2 size={17} />
             </button>
           </div>
         ))}
@@ -182,9 +180,9 @@ export function StudentsPage() {
         }}
         title={editing ? "ویرایش شاگرد" : "شاگرد جدید"}
       >
-        <form onSubmit={onSubmit} className="space-y-3">
+        <form onSubmit={onSubmit} className="space-y-3.5">
           <div>
-            <label className="mb-1.5 block text-[11.5px] font-semibold text-white/50">نام کامل *</label>
+            <label className="mb-1.5 block text-[0.8125rem] font-semibold text-white/55">نام کامل *</label>
             <input
               className="field"
               required
@@ -193,7 +191,7 @@ export function StudentsPage() {
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-[11.5px] font-semibold text-white/50">موبایل</label>
+            <label className="mb-1.5 block text-[0.8125rem] font-semibold text-white/55">موبایل</label>
             <input
               className="field"
               dir="ltr"
@@ -202,7 +200,7 @@ export function StudentsPage() {
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-[11.5px] font-semibold text-white/50">جنسیت</label>
+            <label className="mb-1.5 block text-[0.8125rem] font-semibold text-white/55">جنسیت</label>
             <select
               className="field"
               value={form.gender}
@@ -213,7 +211,7 @@ export function StudentsPage() {
             </select>
           </div>
           <div>
-            <label className="mb-1.5 block text-[11.5px] font-semibold text-white/50">یادداشت</label>
+            <label className="mb-1.5 block text-[0.8125rem] font-semibold text-white/55">یادداشت</label>
             <textarea
               className="field"
               value={form.notes}
@@ -221,7 +219,7 @@ export function StudentsPage() {
             />
           </div>
           {editing ? (
-            <label className="flex items-center gap-2.5 text-[13px] text-white/70">
+            <label className="flex items-center gap-2.5 text-[0.9375rem] text-white/75">
               <input
                 type="checkbox"
                 checked={form.is_active}
@@ -233,7 +231,7 @@ export function StudentsPage() {
           <button type="submit" disabled={saving} className="btn btn-primary w-full">
             {saving ? "…" : editing ? "ذخیره تغییرات" : (
               <>
-                <UserPlus size={15} /> ثبت شاگرد
+                <UserPlus size={16} /> ثبت شاگرد
               </>
             )}
           </button>

@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { Plus, Search, Trash2, Pencil } from "lucide-react";
+import { Plus, Trash2, Pencil } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { coachApi } from "../api/client";
 import type { Exercise } from "../types";
 import { MUSCLE_GROUPS } from "../types";
 import { PageShell, LoadingBlock, ErrorBanner, EmptyState, Modal, listify } from "../components/ui";
+import { FilterBar, SearchField, FilterChips } from "../components/FilterBar";
 
 const emptyForm = { name: "", muscle_group: "legs", equipment: "", instructions: "" };
 
@@ -24,7 +25,8 @@ export function ExercisesPage() {
 
   const load = async () => {
     if (!gymId) return;
-    setLoading(true); setError(null);
+    setLoading(true);
+    setError(null);
     try {
       setItems(
         listify<Exercise>(
@@ -113,49 +115,49 @@ export function ExercisesPage() {
       subtitle={`${items.length} حرکت`}
       actions={
         <button type="button" className="btn btn-primary btn-sm" onClick={openCreate}>
-          <Plus size={14} /> جدید
+          <Plus size={16} /> جدید
         </button>
       }
     >
-      <div className="relative">
-        <Search size={15} className="absolute start-3 top-1/2 -translate-y-1/2 text-white/35" />
-        <input className="field ps-10" placeholder="جستجو…" value={q} onChange={(e) => setQ(e.target.value)} />
-      </div>
-      <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
-        <button type="button" className={`chip ${!muscle ? "chip-active" : ""}`} onClick={() => setMuscle("")}>
-          همه
-        </button>
-        {MUSCLE_GROUPS.map((m) => (
-          <button
-            key={m.value}
-            type="button"
-            className={`chip ${muscle === m.value ? "chip-active" : ""}`}
-            onClick={() => setMuscle(m.value)}
-          >
-            {m.label}
-          </button>
-        ))}
-      </div>
+      <FilterBar>
+        <SearchField value={q} onChange={setQ} placeholder="جستجوی نام حرکت…" />
+        <FilterChips
+          value={muscle}
+          onChange={setMuscle}
+          options={[
+            { value: "", label: "همه" },
+            ...MUSCLE_GROUPS.map((m) => ({ value: m.value, label: m.label })),
+          ]}
+        />
+      </FilterBar>
 
       {loading ? <LoadingBlock /> : null}
       {error ? <ErrorBanner message={error} onRetry={load} /> : null}
       {!loading && !error && items.length === 0 ? <EmptyState title="حرکتی نیست" /> : null}
 
-      <div className="space-y-2">
+      <div className="space-y-2.5">
         {items.map((ex) => (
-          <div key={ex.id} className="card flex items-start gap-2.5">
+          <div key={ex.id} className="row-item">
             <div className="min-w-0 flex-1">
-              <p className="text-[13px] font-bold text-white">{ex.name}</p>
-              <p className="mt-0.5 text-[11px] text-white/45">
+              <p className="row-title">{ex.name}</p>
+              <p className="row-meta">
                 {muscleLabel(ex.muscle_group)}
                 {ex.equipment ? ` · ${ex.equipment}` : ""}
               </p>
             </div>
-            <button type="button" className="rounded-lg p-1.5 text-white/45" onClick={() => openEdit(ex)}>
-              <Pencil size={15} />
+            <button
+              type="button"
+              className="flex h-10 w-10 items-center justify-center rounded-xl text-white/45 hover:bg-white/[0.05]"
+              onClick={() => openEdit(ex)}
+            >
+              <Pencil size={17} />
             </button>
-            <button type="button" className="rounded-lg p-1.5 text-red-300/70" onClick={() => onDelete(ex.id, ex.name)}>
-              <Trash2 size={15} />
+            <button
+              type="button"
+              className="flex h-10 w-10 items-center justify-center rounded-xl text-red-300/65 hover:bg-red-500/10"
+              onClick={() => onDelete(ex.id, ex.name)}
+            >
+              <Trash2 size={17} />
             </button>
           </div>
         ))}
@@ -163,29 +165,51 @@ export function ExercisesPage() {
 
       <Modal
         open={modal}
-        onClose={() => { setModal(false); setEditing(null); }}
+        onClose={() => {
+          setModal(false);
+          setEditing(null);
+        }}
         title={editing ? "ویرایش حرکت" : "حرکت جدید"}
       >
-        <form onSubmit={onSubmit} className="space-y-2.5">
+        <form onSubmit={onSubmit} className="space-y-3.5">
           <div>
-            <label className="mb-1 block text-[11px] text-white/50">نام *</label>
-            <input className="field" required value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
+            <label className="mb-1.5 block text-[0.8125rem] font-semibold text-white/55">نام *</label>
+            <input
+              className="field"
+              required
+              value={form.name}
+              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+            />
           </div>
           <div>
-            <label className="mb-1 block text-[11px] text-white/50">گروه عضلانی</label>
-            <select className="field" value={form.muscle_group} onChange={(e) => setForm((f) => ({ ...f, muscle_group: e.target.value }))}>
+            <label className="mb-1.5 block text-[0.8125rem] font-semibold text-white/55">گروه عضلانی</label>
+            <select
+              className="field"
+              value={form.muscle_group}
+              onChange={(e) => setForm((f) => ({ ...f, muscle_group: e.target.value }))}
+            >
               {MUSCLE_GROUPS.map((m) => (
-                <option key={m.value} value={m.value}>{m.label}</option>
+                <option key={m.value} value={m.value}>
+                  {m.label}
+                </option>
               ))}
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-[11px] text-white/50">تجهیزات</label>
-            <input className="field" value={form.equipment} onChange={(e) => setForm((f) => ({ ...f, equipment: e.target.value }))} />
+            <label className="mb-1.5 block text-[0.8125rem] font-semibold text-white/55">تجهیزات</label>
+            <input
+              className="field"
+              value={form.equipment}
+              onChange={(e) => setForm((f) => ({ ...f, equipment: e.target.value }))}
+            />
           </div>
           <div>
-            <label className="mb-1 block text-[11px] text-white/50">دستورالعمل</label>
-            <textarea className="field" value={form.instructions} onChange={(e) => setForm((f) => ({ ...f, instructions: e.target.value }))} />
+            <label className="mb-1.5 block text-[0.8125rem] font-semibold text-white/55">دستورالعمل</label>
+            <textarea
+              className="field"
+              value={form.instructions}
+              onChange={(e) => setForm((f) => ({ ...f, instructions: e.target.value }))}
+            />
           </div>
           <button type="submit" disabled={saving} className="btn btn-primary w-full">
             {saving ? "…" : editing ? "ذخیره تغییرات" : "ثبت حرکت"}
